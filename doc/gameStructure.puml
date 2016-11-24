@@ -1,0 +1,92 @@
+@startuml
+class Session {
+  Player[] players
+  int turn
+  int sequence
+}
+
+Session --|> Observable
+
+interface Observable {
+  void addListener(Observer o)
+  void removeListener(Observer o)
+}
+
+class Player {
+  Hero hero
+  Minion[] minions
+  Deck deck
+  Deck pullDeck
+  int points
+  int maxPoints
+}
+class Hero {
+  Player player
+  Weapon weapon
+  Secret[] secrets
+}
+class Minion {
+  Player player
+  int health
+  int strength
+}
+interface Damageable {
+  +int getHealth()
+  +int getStrength()
+  +void setBuff(int health, int strength)
+  +int getOriginalHealth()
+  +int getOriginalStrength()
+  +bool damage(int points)
+  +bool isDead()
+}
+interface Spell {
+  +void execute(Session session)
+}
+class Deck {
+  #Card[] cards
+  +void push(Card card)
+  +Card pop()
+  +void unshift(Card card)
+  +Card shift()
+  +int getSize()
+  +void shuffle()
+}
+interface Secret {
+  +void install(Session session)
+  +void uninstall(Session session)
+}
+class Weapon {
+  int strength
+  int limit
+}
+enum Card {
+  CardType type
+  Class cardClass
+  String name
+  String description
+  int cost
+  CardRarity rarity
+}
+enum CardType
+enum CardRarity
+interface Action {
+  +void execute(Session session)
+}
+
+Secret --|> Spell
+Hero --* Secret
+Hero --* Weapon
+
+Player --* Hero
+Player --* Deck
+Player --* Minion
+
+Deck --* Card
+Card --* CardType
+Card --* CardRarity
+Session --* Player
+
+Hero --|> Damageable
+Minion --|> Damageable
+
+@enduml
