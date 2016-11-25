@@ -8,6 +8,8 @@ public class Hero implements Damageable {
   protected HeroAbility ability;
   protected boolean abilityEnabled = true;
   protected int interactSeq = -1;
+  protected int messageSeq = -1;
+  protected String currentMessage = "";
   
   public Hero(Player player, HeroData data) {
     this.player = player;
@@ -15,6 +17,15 @@ public class Hero implements Damageable {
     ability = new HeroAbility(data.ability, this);
     // What an amazing hardcoded variable
     this.health = 30;
+  }
+  
+  public String getCurrentMessage() {
+    return currentMessage;
+  }
+  
+  public void setCurrentMessage(String currentMessage) {
+    this.currentMessage = currentMessage;
+    setMessageSeq();
   }
   
   public Player getPlayer() {
@@ -106,6 +117,18 @@ public class Hero implements Damageable {
   
   public Session getSession() {
     return player.session;
+  }
+  
+  public int getMessageSeq() {
+    return messageSeq;
+  }
+  
+  public void setMessageSeq(int messageSeq) {
+    this.messageSeq = messageSeq;
+  }
+  
+  public void setMessageSeq() {
+    this.setMessageSeq(getPlayer().session.seqId);
   }
   
   public int getInteractSeq() {

@@ -259,7 +259,12 @@ public class PlayerSection extends JPanel {
     Hero hero = player.getHero();
     heroDisplay.setBackground(hero.getInteractSeq() == hero.getSession().getSeqId() ?
         Color.BLUE : Color.BLACK);
-    heroMessageLabel.setText(inverted ? hero.getStartAgainst() : hero.getStart());
+    if (hero.getMessageSeq() == -1 && hero.getSession().getSeqId() < 4) {
+      heroMessageLabel.setText(inverted ? hero.getStartAgainst() : hero.getStart());
+    } else {
+      heroMessageLabel.setText((hero.getSession().getSeqId() - hero.getMessageSeq() < 3) ?
+          hero.getCurrentMessage() : "");
+    }
     // Hide hero stuff for now
     heroWeapon.setVisible(false);
     Card abilityCard = hero.getAbility().getCard();

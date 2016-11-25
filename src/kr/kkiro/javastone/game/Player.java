@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Random;
 
 import kr.kkiro.javastone.game.card.Card;
+import kr.kkiro.javastone.game.card.MinionCard;
+import kr.kkiro.javastone.game.card.SpellCard;
 import kr.kkiro.javastone.game.card.TargetCard;
 import kr.kkiro.javastone.util.RandomUtil;
 
@@ -107,6 +109,7 @@ public class Player {
           }
         } else {
           if (targetCard.isOtherMinion()) {
+            doInsung();
             // Select random minion from opponent
             List<Minion> minions = session.getOpponent(this).getMinions();
             if (minions.size() > 0) {
@@ -117,11 +120,13 @@ public class Player {
             }
           }
           if (targetCard.isOtherHero()) {
+            doInsung();
             this.useCard(targetCard, session.getOpponent(this).hero);
             return false;
           }
         }
       } else {
+        doInsung();
         this.useCard(card);
         return false;
       }
@@ -154,12 +159,39 @@ public class Player {
         if (target != null) {
           session.nextSeqId();
           minion.attack(target);
+          if (target.isDead()) {
+            doInsung(20);
+          } else {
+            doInsung();
+          }
           return false;
         }
       }
     }
     // We're done
     return true;
+  }
+  
+  public void doInsung() {
+    doInsung(40);
+  }
+  
+  public void doInsung(int percent) {
+    if (RandomUtil.getRandom().nextInt(100) < percent) return;
+    switch (RandomUtil.getRandom().nextInt(4)) {
+    case 0:
+      hero.setCurrentMessage(hero.getThreaten());
+      break;
+    case 1:
+      hero.setCurrentMessage(hero.getGreetings());
+      break;
+    case 2:
+      hero.setCurrentMessage(hero.getWellPlayed());
+      break;
+    case 3:
+      hero.setCurrentMessage(hero.getThanks());
+      break;
+    }
   }
   
   public boolean hasTaunt() {
