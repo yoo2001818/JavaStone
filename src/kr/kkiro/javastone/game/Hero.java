@@ -1,17 +1,18 @@
 package kr.kkiro.javastone.game;
 
-import kr.kkiro.javastone.game.card.Card;
-
 public class Hero implements Damageable {
   
   protected Player player;
   protected int health;
   protected HeroData data;
+  protected HeroAbility ability;
+  protected boolean abilityEnabled = true;
   protected int interactSeq = -1;
   
   public Hero(Player player, HeroData data) {
     this.player = player;
     this.data = data;
+    ability = new HeroAbility(data.ability, this);
     // What an amazing hardcoded variable
     this.health = 30;
   }
@@ -50,13 +51,21 @@ public class Hero implements Damageable {
   public boolean isDead() {
     return health <= 0;
   }
+  
+  public boolean isAbilityEnabled() {
+    return abilityEnabled;
+  }
+  
+  public void setAbilityEnabled(boolean abilityEnabled) {
+    this.abilityEnabled = abilityEnabled;
+  }
 
   public String getName() {
     return data.getName();
   }
 
-  public Card getHeroSpell() {
-    return data.getHeroSpell();
+  public HeroAbility getAbility() {
+    return ability;
   }
 
   public String getStart() {

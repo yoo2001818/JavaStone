@@ -3,9 +3,12 @@ package kr.kkiro.javastone.game;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
 
 import kr.kkiro.javastone.game.card.Card;
+import kr.kkiro.javastone.game.card.SpellCard;
 import kr.kkiro.javastone.game.card.TargetCard;
+import kr.kkiro.javastone.util.RandomUtil;
 
 public class Player {
   protected Session session;
@@ -82,14 +85,67 @@ public class Player {
     this.ai = ai;
   }
   
+  public boolean runAICard(Card card, Iterator<Card> cardIter) {
+    Random random = RandomUtil.getRandom();
+    if (card.getCost() <= points) {
+      if (card instanceof TargetCard) {
+        TargetCard targetCard = (TargetCard) card;
+        // Is it good?
+        if (targetCard.isGood()) {
+          if (targetCard.isSelfMinion()) {
+            // Select random minion from me
+            List<Minion> minions = this.getMinions();
+            if (minions.size() > 0) {
+              Minion minion = minions.get(random.nextInt(minions.size()));
+              // Tada
+              this.useCard(targetCard, minion);
+              if (cardIter != null) cardIter.remove();
+              return false;
+            }
+          }
+          if (targetCard.isSelfHero()) {
+            this.useCard(targetCard, this.hero);
+            if (cardIter != null) cardIter.remove();
+            return false;
+          }
+        } else {
+          if (targetCard.isOtherMinion()) {
+            // Select random minion from opponent
+            List<Minion> minions = session.getOpponent(this).getMinions();
+            if (minions.size() > 0) {
+              Minion minion = minions.get(random.nextInt(minions.size()));
+              // Tada
+              this.useCard(targetCard, minion);
+              if (cardIter != null) cardIter.remove();
+              return false;
+            }
+          }
+          if (targetCard.isOtherHero()) {
+            this.useCard(targetCard, session.getOpponent(this).hero);
+            if (cardIter != null) cardIter.remove();
+            return false;
+          }
+        }
+      } else {
+        this.useCard(card);
+        if (cardIter != null) cardIter.remove();
+        return false;
+      }
+    }
+    return true;
+  }
+  
   public boolean runAIStep() {
     // Use all cards
     Iterator<Card> cardIter = this.deck.getCards().iterator();
     while (cardIter.hasNext()) {
       Card card = cardIter.next();
-      if (card.getCost() <= points && !(card instanceof TargetCard)) {
-        this.useCard(card);
-        cardIter.remove();
+      if (!runAICard(card, cardIter)) return false;
+    }
+    // Check hero ability
+    if (hero.isAbilityEnabled()) {
+      if (!runAICard(hero.getAbility().getCard(), null)) {
+        hero.setAbilityEnabled(false);
         return false;
       }
     }
@@ -111,7 +167,7 @@ public class Player {
   
   public boolean hasTaunt() {
     for (Minion minion : getMinions()) {
-      if (minion.isTaunt()) return true;
+      if (minion.isTaunt() && !minion.isDead()) return true;
     }
     return false;
   }
@@ -157,6 +213,7 @@ public class Player {
     for (Minion minion : getMinions()) {
       minion.setReady(true);
     }
+    hero.abilityEnabled = true;
   }
   
   public void addMinion(Minion minion) {
@@ -171,5 +228,13 @@ public class Player {
     points -= card.getCost();
     // Card should be removed from hand in advance
     card.run(session, this);
+  }
+  
+  public void useCard(TargetCard card, Damageable target) {
+    if (card.getCost() > points) return;
+    session.nextSeqId();
+    points -= card.getCost();
+    // Card should be removed from hand in advance
+    card.runTarget(session, this, target);
   }
 }

@@ -7,6 +7,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -22,6 +23,7 @@ import javax.swing.border.EmptyBorder;
 import kr.kkiro.javastone.game.Hero;
 import kr.kkiro.javastone.game.Minion;
 import kr.kkiro.javastone.game.Player;
+import kr.kkiro.javastone.game.card.Card;
 
 public class PlayerSection extends JPanel {
   
@@ -132,14 +134,14 @@ public class PlayerSection extends JPanel {
     
     heroAttack = new JLabel("30");
     heroAttack.setOpaque(true);
-    heroAttack.setBounds(1, 66, 24, 14);
+    heroAttack.setBounds(0, 66, 24, 14);
     heroAttack.setBackground(new Color(255, 204, 102));
     heroDisplay.add(heroAttack);
     
     heroHealth = new JLabel("30");
     heroHealth.setOpaque(true);
     heroHealth.setHorizontalAlignment(SwingConstants.TRAILING);
-    heroHealth.setBounds(55, 66, 24, 14);
+    heroHealth.setBounds(56, 66, 24, 14);
     heroHealth.setBackground(new Color(255, 102, 102));
     heroDisplay.add(heroHealth);
     
@@ -171,10 +173,18 @@ public class PlayerSection extends JPanel {
     heroAbility.setMaximumSize(new Dimension(50, 50));
     heroAbility.setBorder(null);
     heroAbility.setBackground(Color.BLACK);
+    heroAbility.addMouseListener(new MouseAdapter() {
+      @Override
+      public void mouseClicked(MouseEvent e) {
+        fireEntitySelected(player.getHero().getAbility());
+      }
+    });
     
     heroAbilityCost = new JLabel("8");
-    heroAbilityCost.setHorizontalAlignment(SwingConstants.CENTER);
-    heroAbilityCost.setBounds(12, 0, 24, 14);
+    heroAbilityCost.setOpaque(true);
+    heroAbilityCost.setBackground(new Color(204, 204, 204));
+    heroAbilityCost.setHorizontalAlignment(SwingConstants.RIGHT);
+    heroAbilityCost.setBounds(36, 0, 14, 14);
     heroAbility.add(heroAbilityCost);
     
     heroAbilityImage = new JLabel("");
@@ -252,7 +262,12 @@ public class PlayerSection extends JPanel {
     heroMessageLabel.setText(inverted ? hero.getStartAgainst() : hero.getStart());
     // Hide hero stuff for now
     heroWeapon.setVisible(false);
-    heroAbility.setVisible(false);
+    Card abilityCard = hero.getAbility().getCard();
+    heroAbility.setVisible(abilityCard != null);
+    if (abilityCard != null) {
+      heroAbilityImage.setIcon(new ImageIcon(abilityCard.getIcon()));
+      heroAbilityCost.setText(Integer.toString(abilityCard.getCost()));
+    }
     heroAttack.setVisible(hero.getStrength() != 0);
     heroAttack.setText(Integer.toString(hero.getStrength()));
     heroHealth.setText(Integer.toString(hero.getHealth()));

@@ -28,10 +28,12 @@ import javax.swing.event.ListSelectionListener;
 
 import kr.kkiro.javastone.game.Damageable;
 import kr.kkiro.javastone.game.Hero;
+import kr.kkiro.javastone.game.HeroAbility;
 import kr.kkiro.javastone.game.Minion;
 import kr.kkiro.javastone.game.Player;
 import kr.kkiro.javastone.game.Session;
 import kr.kkiro.javastone.game.card.Card;
+import kr.kkiro.javastone.game.card.MinionCard;
 import kr.kkiro.javastone.game.card.TargetCard;
 import kr.kkiro.javastone.panel.CardView;
 import kr.kkiro.javastone.panel.PlayerSection;
@@ -179,12 +181,22 @@ public class GameActivity extends Activity implements SelectListener {
   
   public void setSelected(Object selected) {
     if (isSelecting) return;
+    selectedIndex = cardList.getSelectedIndex();
     this.selected = selected;
     updateSelected();
   }
   
   public void updateSelected() {
     if (isSelecting) return;
+    if (selected instanceof HeroAbility) {
+      HeroAbility ability = (HeroAbility)selected;
+      Card card = ability.getCard();
+      updateCards(card);
+      submitCardBtn.setText("카드 내기");
+      submitCardBtn.setEnabled(session.getCurrentPlayer() == player && card.getCost() <=
+          player.getPoints() && ability.getHero() == player.getHero() &&
+          player.getHero().isAbilityEnabled());
+    }
     if (selected instanceof Card) {
       Card card = (Card)selected;
       updateCards(card);
@@ -232,21 +244,26 @@ public class GameActivity extends Activity implements SelectListener {
       updateSelected();
       return;
     }
-    if (selected instanceof TargetCard) {
-      if (((TargetCard)selected).getCost() > player.getPoints()) return;
+    Object obj = selected;
+    if (selected instanceof HeroAbility) {
+      // Swap selected
+      obj = ((HeroAbility) selected).getCard();
+    }
+    if (obj instanceof TargetCard) {
+      if (((TargetCard)obj).getCost() > player.getPoints()) return;
       // Start minion set mode
       isSelecting = true;
-      selectedIndex = cardList.getSelectedIndex();
       submitCardBtn.setText("취소");
       submitCardBtn.setEnabled(true);
-    } else if (selected instanceof Card) {
+    } else if (obj instanceof Card) {
       // Okay..
       int index = cardList.getSelectedIndex();
       Card card = player.getDeck().getCards().remove(index);
       if (card.getCost() > player.getPoints()) return;
       player.useCard(card);
+      cardList.setSelectedIndex(0);
       updateView();
-    } else if (selected instanceof Minion) {
+    } else if (obj instanceof Minion) {
       // Start minion set mode
       isSelecting = true;
       submitCardBtn.setText("취소");
@@ -263,9 +280,14 @@ public class GameActivity extends Activity implements SelectListener {
   @Override
   public void entitySelected(Object entity) {
     if (isSelecting) {
-      if (selected instanceof Minion && entity instanceof Damageable) {
+      Object obj = selected;
+      if (selected instanceof HeroAbility) {
+        // Swap selected
+        obj = ((HeroAbility) selected).getCard();
+      }
+      if (obj instanceof Minion && entity instanceof Damageable) {
         // :)
-        Minion self = (Minion) selected;
+        Minion self = (Minion) obj;
         Damageable target = (Damageable) entity;
         Player player = target.getPlayer();
         if (player.hasTaunt() && !(target instanceof Minion && ((Minion)target).isTaunt())) {
@@ -276,8 +298,8 @@ public class GameActivity extends Activity implements SelectListener {
         self.attack(target);
         isSelecting = false;
         updateView();
-      } else if (selected instanceof TargetCard && entity instanceof Damageable) {
-        TargetCard card = (TargetCard) selected;
+      } else if (obj instanceof TargetCard && entity instanceof Damageable) {
+        TargetCard card = (TargetCard) obj;
         if (card.getCost() > player.getPoints()) {
           isSelecting = false;
           updateView();
@@ -287,7 +309,12 @@ public class GameActivity extends Activity implements SelectListener {
         if (result) {
           session.nextSeqId();
           player.setPoints(player.getPoints() - card.getCost());
-          player.getDeck().getCards().remove(selectedIndex);
+          if (selectedIndex >= 0 && selected == player.getDeck().getCards().get(selectedIndex))
+            player.getDeck().getCards().remove(selectedIndex);
+          cardList.setSelectedIndex(0);
+          if (selected instanceof HeroAbility) {
+            ((HeroAbility) selected).getHero().setAbilityEnabled(false);
+          }
           card.runTarget(session, player, (Damageable) entity);
           isSelecting = false;
           updateView();
@@ -299,6 +326,7 @@ public class GameActivity extends Activity implements SelectListener {
       }
       return;
     }
+    selectedIndex = -1;
     this.setSelected(entity);
   }
 

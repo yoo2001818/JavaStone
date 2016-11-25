@@ -26,6 +26,19 @@ public abstract class TargetCard extends SpellCard {
     throw new RuntimeException("run() should not be called (no target specified)");
   }
   
+  public boolean isSelfHero() {
+    return (targets & SELF_HERO) != 0;
+  }
+  public boolean isSelfMinion() {
+    return (targets & SELF_MINION) != 0;
+  }
+  public boolean isOtherHero() {
+    return (targets & OTHER_HERO) != 0;
+  }
+  public boolean isOtherMinion() {
+    return (targets & OTHER_MINION) != 0;
+  }
+  
   public boolean checkTarget(Session session, Player player, Damageable target) {
     // Check validity
     if ((targets & SELF_HERO) == 0 && target == player.getHero()) {

@@ -1,10 +1,21 @@
 package kr.kkiro.javastone.game;
 
 import kr.kkiro.javastone.game.card.Card;
+import kr.kkiro.javastone.game.card.TargetCard;
+import kr.kkiro.javastone.game.card.Card.Rarity;
 
 public class HeroData {
   protected String name = "제이나";
-  protected Card heroSpell;
+  protected Card ability = new TargetCard("/res/fireball.png", "화염구", "피해를 1 줍니다.", Rarity.BASIC, 1, 
+      TargetCard.SELF_MINION | TargetCard.OTHER_MINION | TargetCard.SELF_HERO | TargetCard.OTHER_HERO,
+      false) {
+    @Override
+    public void runTarget(Session session, Player player, Damageable target) {
+      session.nextSeqId();
+      target.setInteractSeq(session.getSeqId());
+      target.damage(1);
+    }
+  };
   protected String start = "후회하게 해드리죠.";
   protected String startAgainst = "과연 그럴 수 있을까요?";
   protected String suicide = "이번엔 당신이 이겼어요.";
@@ -17,9 +28,6 @@ public class HeroData {
   
   public String getName() {
     return name;
-  }
-  public Card getHeroSpell() {
-    return heroSpell;
   }
   public String getStart() {
     return start;
@@ -49,5 +57,8 @@ public class HeroData {
     return threaten;
   }
   
+  public Card getAbility() {
+    return ability;
+  }
   
 }
