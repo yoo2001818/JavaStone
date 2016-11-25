@@ -1,0 +1,7 @@
+MINION	아픈 늑대	/res/hurtWolf.png	돌진	BASIC	4	1	3	N	Y	
+MINION	도발하는 고라니	/res/tauntGorani.png	도발	BASIC	4	4	3	Y	N	
+MINION	코딩하는 골렘	/res/codingGolem.png	전투의 함성: 핫식스 (1/1)(도발)을 소환합니다.	BASIC	2	2	1	N	N	CodingGolem
+MINION	malloc GC사냥꾼	/res/gcHunter.png	 	BASIC	2	2	1	N	N	
+MINION	멀록 바다사냥꾼	/res/mallocHunter.png	 	BASIC	2	1	2	N	N	
+SPELL	디콘 폭발	/res/explosion.png	자신의 영웅에게 30의 데미지를 입힙니다.	LEGENDARY	10	N	Explosion			
+SPELL	신비한 화살	/res/arrow.png	선택한 하수인에게 6의 데미지를 입힙니다.	BASIC	3	N	10	Arrow		

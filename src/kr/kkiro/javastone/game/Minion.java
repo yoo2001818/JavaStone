@@ -56,6 +56,10 @@ public class Minion implements Damageable {
     return card;
   }
   
+  public void setCard(MinionCard card) {
+    this.card = card;
+  }
+  
   public URL getIcon() {
     return card.getIcon();
   }
@@ -93,6 +97,12 @@ public class Minion implements Damageable {
     this.health -= points;
     return this.isDead();
   }
+  
+  public boolean damage(Damageable target) {
+    this.damage(target.getStrength());
+    this.getCard().hit(this, target, getSession(), getPlayer());
+    return this.isDead();
+  }
 
   @Override
   public boolean isDead() {
@@ -123,8 +133,11 @@ public class Minion implements Damageable {
     this.setInteractSeq();
     target.setInteractSeq(this.getInteractSeq());
     this.setReady(false);
-    this.damage(target.getStrength());
-    target.damage(this.getStrength());
+    this.getCard().attack(this, target, getSession(), getPlayer());
+    this.damage(target);
+    if (target instanceof Minion) ((Minion) target).damage(this);
+    else target.damage(this.getStrength());
+    if (this.isDead()) this.getCard().exit(this, getSession(), getPlayer());
   }
   
   public int getInteractSeq() {

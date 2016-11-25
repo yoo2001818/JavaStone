@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Random;
 
 import kr.kkiro.javastone.game.card.Card;
-import kr.kkiro.javastone.game.card.SpellCard;
 import kr.kkiro.javastone.game.card.TargetCard;
 import kr.kkiro.javastone.util.RandomUtil;
 
@@ -85,7 +84,7 @@ public class Player {
     this.ai = ai;
   }
   
-  public boolean runAICard(Card card, Iterator<Card> cardIter) {
+  public boolean runAICard(Card card) {
     Random random = RandomUtil.getRandom();
     if (card.getCost() <= points) {
       if (card instanceof TargetCard) {
@@ -99,13 +98,11 @@ public class Player {
               Minion minion = minions.get(random.nextInt(minions.size()));
               // Tada
               this.useCard(targetCard, minion);
-              if (cardIter != null) cardIter.remove();
               return false;
             }
           }
           if (targetCard.isSelfHero()) {
             this.useCard(targetCard, this.hero);
-            if (cardIter != null) cardIter.remove();
             return false;
           }
         } else {
@@ -116,19 +113,16 @@ public class Player {
               Minion minion = minions.get(random.nextInt(minions.size()));
               // Tada
               this.useCard(targetCard, minion);
-              if (cardIter != null) cardIter.remove();
               return false;
             }
           }
           if (targetCard.isOtherHero()) {
             this.useCard(targetCard, session.getOpponent(this).hero);
-            if (cardIter != null) cardIter.remove();
             return false;
           }
         }
       } else {
         this.useCard(card);
-        if (cardIter != null) cardIter.remove();
         return false;
       }
     }
@@ -137,14 +131,17 @@ public class Player {
   
   public boolean runAIStep() {
     // Use all cards
-    Iterator<Card> cardIter = this.deck.getCards().iterator();
-    while (cardIter.hasNext()) {
-      Card card = cardIter.next();
-      if (!runAICard(card, cardIter)) return false;
+    for (int i = 0; i < this.deck.cards.size(); ++i) {
+      Card card = this.deck.cards.get(i);
+      if (!runAICard(card)) {
+        this.deck.cards.remove(i);
+        i--;
+        return false;
+      }
     }
     // Check hero ability
     if (hero.isAbilityEnabled()) {
-      if (!runAICard(hero.getAbility().getCard(), null)) {
+      if (!runAICard(hero.getAbility().getCard())) {
         hero.setAbilityEnabled(false);
         return false;
       }
@@ -212,6 +209,7 @@ public class Player {
     // Prepare all minions
     for (Minion minion : getMinions()) {
       minion.setReady(true);
+      minion.getCard().turnStart(minion, session, this);
     }
     hero.abilityEnabled = true;
   }
@@ -220,6 +218,7 @@ public class Player {
     session.nextSeqId();
     minion.setInteractSeq();
     minions.add(minion);
+    minion.getCard().enter(minion, session, this);
   }
   
   public void useCard(Card card) {

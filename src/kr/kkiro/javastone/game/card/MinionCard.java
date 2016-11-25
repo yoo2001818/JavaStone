@@ -1,5 +1,6 @@
 package kr.kkiro.javastone.game.card;
 
+import kr.kkiro.javastone.game.Damageable;
 import kr.kkiro.javastone.game.Minion;
 import kr.kkiro.javastone.game.Player;
 import kr.kkiro.javastone.game.Session;
@@ -12,7 +13,7 @@ public class MinionCard extends Card {
   protected boolean charge;
   
   public MinionCard(String icon, String name, String description, Rarity rarity, int cost,
-      int health, int strength, boolean taunt, boolean charge) {
+      int strength, int health, boolean taunt, boolean charge) {
     super(icon, name, description, rarity, cost);
     this.health = health;
     this.strength = strength;
@@ -41,6 +42,21 @@ public class MinionCard extends Card {
     // Spawn the minion
     Minion minion = new Minion(player, this);
     player.addMinion(minion);
+  }
+  
+  public void enter(Minion minion, Session session, Player player) {
+  }
+  
+  public void exit(Minion minion, Session session, Player player) {
+  }
+  
+  public void turnStart(Minion minion, Session session, Player player) {
+  }
+  
+  public void hit(Minion minion, Damageable target, Session session, Player player) {
+  }
+  
+  public void attack(Minion minion, Damageable target, Session session, Player player) {
   }
 
   @Override
