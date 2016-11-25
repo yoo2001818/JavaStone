@@ -23,7 +23,7 @@ public class JavaStoneMain extends ApplicationApplet {
   public static void main(String[] args) {
     // Create applet and launch frame
     final JavaStoneMain applet = new JavaStoneMain();
-    applet.launchFrame("JavaStone", new Dimension(800, 600));
+    applet.launchFrame("Javastone - Heroes of JVM", new Dimension(800, 600));
   }
 
 }

@@ -42,7 +42,12 @@ public class TitleActivity extends Activity {
     gameTitle.setFont(new Font(gameTitle.getFont().getName(), Font.PLAIN, 80));
     gameTitle.setForeground(Color.BLACK);
     gameTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
-    gameTitle.setText("JavaStone");
+    gameTitle.setText("Javastone");
+    
+    JLabel lblHeroesOfJvm = new JLabel("Heroes of JVM");
+    lblHeroesOfJvm.setForeground(new Color(0, 0, 0));
+    lblHeroesOfJvm.setHorizontalAlignment(SwingConstants.CENTER);
+    panel.add(lblHeroesOfJvm, BorderLayout.SOUTH);
     
     JPanel menuContainer = new JPanel();
     menuContainer.setOpaque(false);

@@ -1,14 +1,73 @@
 package kr.kkiro.javastone.game;
 
-public class Minion implements IDamageable {
+import java.net.URL;
+
+import kr.kkiro.javastone.game.card.MinionCard;
+
+public class Minion implements Damageable {
   
-  // Owner
+  /**
+   * Owner of the minion.
+   */
   protected Player player;
-  // Original card
-  protected Card card;
+  /**
+   * Original card that is used to generate the minion.
+   */
+  protected MinionCard card;
+  /**
+   * Current health point of the minion.
+   */
   protected int health;
+  /**
+   * Current strength point of the minion.
+   */
   protected int strength;
+  /**
+   * Determines if the minion is ready.
+   */
+  protected boolean ready;
+  /**
+   * Marks whether if the minion is taunted (Opponent only can attack taunted minions, if
+   * available)
+   */
+  protected boolean taunt;
   
+  protected int interactSeq;
+  
+  public Minion(Player player, MinionCard card) {
+    this.player = player;
+    this.card = card;
+    this.health = card.getHealth();
+    this.strength = card.getStrength();
+    this.ready = card.isCharge();
+    this.taunt = card.isTaunt();
+    // TODO Set up minion code
+  }
+  
+  public Player getPlayer() {
+    return player;
+  }
+  
+  public void setPlayer(Player player) {
+    this.player = player;
+  }
+  
+  public MinionCard getCard() {
+    return card;
+  }
+  
+  public URL getIcon() {
+    return card.getIcon();
+  }
+  
+  public String getName() {
+    return card.getName();
+  }
+
+  public String getDescription() {
+    return card.getDescription();
+  }
+
   @Override
   public int getHealth() {
     return health;
@@ -38,6 +97,46 @@ public class Minion implements IDamageable {
   @Override
   public boolean isDead() {
     return health <= 0;
+  }
+  
+  public boolean isTaunt() {
+    return taunt;
+  }
+  
+  public void setTaunt(boolean taunt) {
+    this.taunt = taunt;
+  }
+  
+  public boolean isReady() {
+    return ready;
+  }
+  
+  public void setReady(boolean ready) {
+    this.ready = ready;
+  }
+  
+  public Session getSession() {
+    return player.session;
+  }
+  
+  public void attack(Damageable target) {
+    this.setInteractSeq();
+    target.setInteractSeq(this.getInteractSeq());
+    this.setReady(false);
+    this.damage(target.getStrength());
+    target.damage(this.getStrength());
+  }
+  
+  public int getInteractSeq() {
+    return interactSeq;
+  }
+  
+  public void setInteractSeq(int interactSeq) {
+    this.interactSeq = interactSeq;
+  }
+  
+  public void setInteractSeq() {
+    this.setInteractSeq(getPlayer().session.seqId);
   }
 
 }

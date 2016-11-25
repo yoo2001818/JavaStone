@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import kr.kkiro.javastone.game.card.Card;
 import kr.kkiro.javastone.util.RandomUtil;
 
 public class Deck {
@@ -13,24 +14,32 @@ public class Deck {
     
   }
   
-  void push(Card card) {
+  public void push(Card card) {
     cards.add(card);
   }
-  Card pop() {
+  public Card pop() {
     return cards.remove(cards.size() - 1);
   }
-  void unshift(Card card) {
+  public void unshift(Card card) {
     cards.add(0, card);
   }
-  Card shift() {
+  public Card shift() {
     return cards.remove(0);
   }
   
-  int size() {
+  public int size() {
     return cards.size();
   }
   
-  void shuffle() {
+  public boolean isEmpty() {
+    return cards.isEmpty();
+  }
+  
+  public List<Card> getCards() {
+    return cards;
+  }
+  
+  public void shuffle() {
     Random random = RandomUtil.getRandom();
     for (int i = 0; i < cards.size() - 2; ++i) {
       int j = random.nextInt(cards.size() - i) + i;
